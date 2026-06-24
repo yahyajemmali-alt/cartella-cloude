@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Music - Accademia Musicale</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #000;
+        }
+        
+        /* Intestazione */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: blue;
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-style: italic;
+            font-size: 18px;
+            margin-top: 0;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+
+        /* Sezione Chi Siamo */
+        .chi-siamo-box {
+            background-color: blue;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .chi-siamo-box h2 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+        .chi-siamo-box p {
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        /* Sezione I Nostri Servizi (Layout Affiancato) */
+        .servizi-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .servizi-lista {
+            flex: 1;
+            min-width: 250px;
+        }
+        .servizi-lista ul {
+            font-size: 18px;
+            line-height: 1.8;
+        }
+        .servizi-immagine {
+            flex: 1;
+            text-align: right;
+            min-width: 300px;
+        }
+        .servizi-immagine img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Titoli di sezione */
+        h2.sezione-titolo {
+            font-size: 28px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        /* Tabella Offerte Speciali */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 15px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: blue;
+            color: white;
+            font-weight: bold;
+        }
+        td {
+            font-weight: bold;
+        }
+        .strumento-img {
+            width: 240px;
+            height: 240px;
+            object-fit: contain;
+        }
+
+        /* Footer */
+        footer {
+            text-align: right;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Dream Music - Accademia Musicale</h1> <p>Vivi il ritmo della tua vita</p> </div>
+    
+    <hr>
+
+    <div class="chi-siamo-box">
+        <h2>Chi siamo</h2> <p>
+            La nostra accademia <strong>Dream Music</strong> organizza corsi in tutto il mondo. Offriamo esperienze straordinarie per ogni tipo di musicista. Il nostro obiettivo è rendere ogni lezione speciale e senza pensieri. </p>
+    </div>
+
+    <hr>
+
+    <h2 class="sezione-titolo">I nostri servizi</h2> <div class="servizi-container">
+        <div class="servizi-lista">
+            <ul>
+                <li>Corsi di strumento e canto</li> <li>Noleggio strumenti professionali</li> <li>Sale prove e studi di registrazione</li> </ul>
+        </div>
+        <div class="servizi-immagine">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6ROVdTTkCOvbOzUtKfCnhZ66xCvCAv35f5Q&s" alt="Immagine Servizi"> </div>
+    </div>
+
+    <hr>
+
+    <h2 class="sezione-titolo">Offerte speciali</h2> <table>
+        <thead>
+            <tr>
+                <th>Strumento</th> <th>Immagine</th> <th>Prezzo</th> <th>Dettagli</th> </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Pianoforte</td> <td>
+                    <img class="strumento-img" src="https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRgnGxdwWIY5-0bHVkbaH1Aj28xiRinivix7Atp5IaGlZZxwD8tdhB2HEmOeYPKkbjA-uoMcIlo1zvcUJqfU6AbHkELRhYICQLuTw0mQsf4S8yi358lJOkWuzetppXfoEH1Kj32-RJC&usqp=CAc" alt="Pianoforte"> </td>
+                <td>2500€</td> <td><a href="https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRgnGxdwWIY5-0bHVkbaH1Aj28xiRinivix7Atp5IaGlZZxwD8tdhB2HEmOeYPKkbjA-uoMcIlo1zvcUJqfU6AbHkELRhYICQLuTw0mQsf4S8yi358lJOkWuzetppXfoEH1Kj32-RJC&usqp=CAc" target="_blank">Scopri di più</a></td> </tr>
+            <tr>
+                <td>Chitarra Elettrica</td> <td>
+                    <img class="strumento-img" src="https://static.strumenti.net/product/750/2017/12/08/23/chitarra-elettricastratoblu-1.jpg" alt="Chitarra Elettrica"> </td>
+                <td>800€</td> <td><a href="https://www.oscarmondadori.it/content/uploads/2023/11/978880475784HIG.webp" target="_blank">Scopri di più</a></td> </tr>
+            <tr>
+                <td>Violino</td> <td>
+                    <img class="strumento-img" src="https://www.paniate.it/images/thumbs/0012295_violino-con-suono-realistico_650.jpeg" alt="Violino"> </td>
+                <td>1200€</td> <td><a href="https://it.wikipedia.org/wiki/Violino" target="_blank">Scopri di più</a></td> </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <footer>
+        2026 Dream Music - Accademia Musicale </footer>
+
+</body>
+</html>

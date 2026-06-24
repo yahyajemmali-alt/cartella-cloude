@@ -1,0 +1,431 @@
+#!/usr/bin/env python3
+"""
+╔══════════════════════════════════════════════════════════════╗
+║        AUTO DEALERSHIP AI WEBSITE GENERATOR BOT              ║
+║        Powered by Claude AI — by Yahya Jemmali               ║
+╚══════════════════════════════════════════════════════════════╝
+
+Questo bot genera siti web professionali e completi per concessionarie
+auto in pochi secondi, usando l'intelligenza artificiale di Claude.
+"""
+
+import anthropic
+import os
+import sys
+import json
+import re
+from datetime import datetime
+from pathlib import Path
+
+# ─── COLORI TERMINALE ───────────────────────────────────────────
+class C:
+    RED     = "\033[91m"
+    GREEN   = "\033[92m"
+    YELLOW  = "\033[93m"
+    BLUE    = "\033[94m"
+    MAGENTA = "\033[95m"
+    CYAN    = "\033[96m"
+    WHITE   = "\033[97m"
+    BOLD    = "\033[1m"
+    DIM     = "\033[2m"
+    RESET   = "\033[0m"
+
+def banner():
+    print(f"""
+{C.CYAN}{C.BOLD}
+ ██████╗ █████╗ ██████╗      █████╗ ██╗    ██████╗  ██████╗ ████████╗
+██╔════╝██╔══██╗██╔══██╗    ██╔══██╗██║    ██╔══██╗██╔═══██╗╚══██╔══╝
+██║     ███████║██████╔╝    ███████║██║    ██████╔╝██║   ██║   ██║
+██║     ██╔══██║██╔══██╗    ██╔══██║██║    ██╔══██╗██║   ██║   ██║
+╚██████╗██║  ██║██║  ██║    ██║  ██║██║    ██████╔╝╚██████╔╝   ██║
+ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚═╝    ╚═════╝  ╚═════╝    ╚═╝
+{C.RESET}
+{C.YELLOW}{C.BOLD}        🚗  AI Website Generator per Concessionarie Auto  🚗{C.RESET}
+{C.DIM}        Genera siti web professionali completi in pochi secondi{C.RESET}
+{C.DIM}        ─────────────────────────────────────────────────────{C.RESET}
+""")
+
+def ask(prompt: str, default: str = "") -> str:
+    """Prompt interattivo con stile"""
+    suffix = f" {C.DIM}[{default}]{C.RESET}" if default else ""
+    value = input(f"{C.CYAN}▸{C.RESET} {C.WHITE}{prompt}{C.RESET}{suffix}: ").strip()
+    return value if value else default
+
+def ask_multi(prompt: str, hint: str = "separati da virgola") -> list[str]:
+    """Chiede una lista di valori"""
+    print(f"{C.CYAN}▸{C.RESET} {C.WHITE}{prompt}{C.RESET} {C.DIM}({hint}){C.RESET}:")
+    value = input("  → ").strip()
+    return [v.strip() for v in value.split(",") if v.strip()]
+
+def section(title: str):
+    print(f"\n{C.YELLOW}{C.BOLD}  ◆ {title}{C.RESET}")
+    print(f"{C.DIM}  {'─' * 50}{C.RESET}")
+
+def spinner_msg(msg: str):
+    print(f"\n{C.MAGENTA}  ⟳  {msg}...{C.RESET}")
+
+def success(msg: str):
+    print(f"\n{C.GREEN}{C.BOLD}  ✓  {msg}{C.RESET}")
+
+def info(msg: str):
+    print(f"  {C.BLUE}ℹ  {msg}{C.RESET}")
+
+# ─── RACCOLTA DATI CONCESSIONARIA ───────────────────────────────
+
+def collect_dealership_info() -> dict:
+    """Raccoglie tutte le informazioni sulla concessionaria tramite dialogo"""
+
+    print(f"\n{C.WHITE}{C.BOLD}  Rispondo ad alcune domande sulla tua concessionaria.{C.RESET}")
+    print(f"  {C.DIM}Premi INVIO per usare il valore predefinito tra parentesi.{C.RESET}\n")
+
+    # ── INFORMAZIONI BASE
+    section("INFORMAZIONI BASE")
+    nome = ask("Nome della concessionaria", "AutoElite Milano")
+    slogan = ask("Slogan/tagline", "Guida il tuo sogno")
+    anno = ask("Anno di fondazione", "2005")
+    citta = ask("Città", "Milano")
+    indirizzo = ask("Indirizzo completo", "Via Roma 42, 20100 Milano")
+    telefono = ask("Telefono", "+39 02 1234567")
+    email = ask("Email", "info@autoelite.it")
+    whatsapp = ask("Numero WhatsApp", "+39 334 1234567")
+
+    # ── BRAND E SPECIALIZZAZIONE
+    section("BRAND E SPECIALIZZAZIONI")
+    marchi = ask_multi("Marchi trattati", "es: BMW, Mercedes, Audi, Ferrari")
+    if not marchi:
+        marchi = ["BMW", "Mercedes-Benz", "Audi", "Porsche"]
+
+    tipologie = ask_multi("Tipologie di veicoli", "es: Nuove, Usate, Km0, Elettriche, Lusso")
+    if not tipologie:
+        tipologie = ["Auto Nuove", "Auto Usate", "Km0", "Elettriche"]
+
+    specialita = ask("Specializzazione principale", "Auto di lusso e sportive")
+    servizi = ask_multi("Servizi offerti", "es: Finanziamento, Permuta, Noleggio, Officina")
+    if not servizi:
+        servizi = ["Finanziamento", "Permuta", "Noleggio a lungo termine", "Officina", "Garanzia estesa"]
+
+    # ── STILE E TEMA
+    section("STILE VISIVO")
+    print(f"\n  Palette colori disponibili:")
+    print(f"    {C.RED}1. Rosso sportivo{C.RESET}  (passione, adrenalina)")
+    print(f"    {C.CYAN}2. Blu tech{C.RESET}       (tecnologia, fiducia)")
+    print(f"    {C.DIM}3. Nero lusso{C.RESET}     (eleganza, premium)")
+    print(f"    {C.YELLOW}4. Gold premium{C.RESET}   (lusso, esclusività)")
+    print(f"    {C.GREEN}5. Verde eco{C.RESET}      (sostenibilità, elettrico)")
+
+    scelta_palette = ask("Scegli palette (1-5)", "3")
+    palette_map = {
+        "1": {"nome": "Rosso Sportivo", "primario": "#E63946", "secondario": "#1D3557", "accento": "#FF6B6B"},
+        "2": {"nome": "Blu Tech",       "primario": "#0077B6", "secondario": "#03045E", "accento": "#00B4D8"},
+        "3": {"nome": "Nero Lusso",     "primario": "#C9A84C", "secondario": "#1A1A1A", "accento": "#E8C97A"},
+        "4": {"nome": "Gold Premium",   "primario": "#D4AF37", "secondario": "#1C1C1E", "accento": "#F5D76E"},
+        "5": {"nome": "Verde Eco",      "primario": "#2D6A4F", "secondario": "#1B1B1B", "accento": "#52B788"},
+    }
+    palette = palette_map.get(scelta_palette, palette_map["3"])
+
+    # ── AUTO IN INVENTARIO
+    section("INVENTARIO (esempio per la demo)")
+    print(f"  {C.DIM}Inserisci alcune auto per popolare l'inventario del sito{C.RESET}")
+    num_auto = ask("Quante auto vuoi nel demo inventario", "6")
+
+    auto_inventory = []
+    try:
+        n = int(num_auto)
+    except ValueError:
+        n = 6
+
+    if n > 0:
+        print(f"\n  {C.DIM}Per ogni auto inserisci: modello, anno, prezzo, km{C.RESET}\n")
+        for i in range(min(n, 8)):
+            print(f"  {C.CYAN}Auto #{i+1}{C.RESET}")
+            modello = ask(f"  Marca e modello", f"BMW Serie 3")
+            anno_auto = ask(f"  Anno", "2024")
+            prezzo = ask(f"  Prezzo (€)", "45.000")
+            km = ask(f"  Km (0 per nuovo)", "0")
+            carburante = ask(f"  Carburante", "Ibrido")
+            potenza = ask(f"  Potenza (CV)", "184")
+            auto_inventory.append({
+                "modello": modello,
+                "anno": anno_auto,
+                "prezzo": prezzo,
+                "km": km,
+                "carburante": carburante,
+                "potenza": potenza
+            })
+
+    # ── FUNZIONALITÀ
+    section("FUNZIONALITÀ DEL SITO")
+    print(f"\n  Seleziona le funzionalità da includere:")
+    features = {
+        "inventario": ask("✦ Inventario auto con filtri avanzati?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+        "calcolatore": ask("✦ Calcolatore finanziamento?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+        "prenotazione": ask("✦ Prenotazione test drive online?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+        "valutazione": ask("✦ Valutazione auto in permuta?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+        "chat": ask("✦ Widget chat WhatsApp?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+        "newsletter": ask("✦ Form newsletter?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+        "mappa": ask("✦ Sezione mappa/come raggiungerci?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+        "gallery": ask("✦ Galleria foto showroom?", "sì").lower() in ["sì", "si", "s", "yes", "y"],
+    }
+
+    # ── CONTENUTO EXTRA
+    section("CONTENUTO E TONO")
+    lingua = ask("Lingua principale del sito", "Italiano")
+    tono = ask("Tono comunicativo (es: lusso/sportivo/familiare/professionale)", "lusso e professionale")
+    note = ask("Note aggiuntive o richieste speciali", "")
+
+    return {
+        "nome": nome,
+        "slogan": slogan,
+        "anno_fondazione": anno,
+        "citta": citta,
+        "indirizzo": indirizzo,
+        "telefono": telefono,
+        "email": email,
+        "whatsapp": whatsapp,
+        "marchi": marchi,
+        "tipologie": tipologie,
+        "specialita": specialita,
+        "servizi": servizi,
+        "palette": palette,
+        "inventario": auto_inventory,
+        "features": features,
+        "lingua": lingua,
+        "tono": tono,
+        "note": note,
+    }
+
+# ─── GENERAZIONE SITO CON CLAUDE AI ────────────────────────────
+
+SYSTEM_PROMPT = """Sei un esperto sviluppatore web senior specializzato in siti web per concessionarie auto di lusso.
+Crei codice HTML/CSS/JavaScript COMPLETO, funzionante e visivamente spettacolare in un singolo file.
+
+REQUISITI TECNICI OBBLIGATORI:
+- Tutto in un singolo file HTML (CSS inline in <style>, JS inline in <script>)
+- Responsive design mobile-first
+- Animazioni CSS fluide (fadeIn, slideIn, parallax)
+- JavaScript puro (no jQuery) per interattività
+- Intersection Observer per animazioni scroll
+- CSS Grid e Flexbox per i layout
+- Custom properties CSS (variabili) per i colori del brand
+- Smooth scroll nativo
+- Font: Google Fonts (Playfair Display + Inter)
+- Icone: Font Awesome 6 CDN
+
+SEZIONI OBBLIGATORIE:
+1. Navbar sticky con logo, menu hamburger mobile, CTA telefono
+2. Hero section con video background simulato (gradient animato) + headline + CTA
+3. Marchi/brand showcase con logo placeholder animati
+4. Inventario auto con card premium + filtri (marca, carburante, prezzo)
+5. Calcolatore finanziamento interattivo (JS)
+6. Form prenotazione test drive
+7. Sezione servizi con icone animate
+8. Sezione "Perché sceglierci" con statistiche counter animato
+9. Testimonial/recensioni clienti
+10. Form contatto + mappa placeholder
+11. WhatsApp floating button
+12. Footer con social links e newsletter
+13. Cookie banner
+14. Loading screen animato
+
+QUALITÀ:
+- Il sito deve sembrare realizzato da un'agenzia premium da 50.000€
+- Animazioni sofisticate ma non eccessive
+- Tipografia gerarchica precisa
+- Spazio bianco generoso
+- Ombre e gradienti premium
+- Hover effects su TUTTI gli elementi interattivi
+- Transizioni CSS su tutto
+
+Rispondi SOLO con il codice HTML completo, senza spiegazioni prima o dopo."""
+
+def build_prompt(info: dict) -> str:
+    """Costruisce il prompt dettagliato per Claude"""
+
+    inventario_str = ""
+    for a in info["inventario"]:
+        inventario_str += f"  - {a['modello']} {a['anno']}, €{a['prezzo']}, {a['km']} km, {a['carburante']}, {a['potenza']} CV\n"
+
+    features_on = [k for k, v in info["features"].items() if v]
+
+    palette = info["palette"]
+
+    return f"""Genera un sito web COMPLETO e SPETTACOLARE per una concessionaria auto con queste specifiche:
+
+═══ IDENTITÀ AZIENDALE ═══
+Nome: {info['nome']}
+Slogan: {info['slogan']}
+Fondata nel: {info['anno_fondazione']}
+Città: {info['citta']}
+Indirizzo: {info['indirizzo']}
+Telefono: {info['telefono']}
+Email: {info['email']}
+WhatsApp: {info['whatsapp']}
+
+═══ BRAND & SPECIALIZZAZIONE ═══
+Marchi trattati: {', '.join(info['marchi'])}
+Tipologie veicoli: {', '.join(info['tipologie'])}
+Specializzazione: {info['specialita']}
+Servizi: {', '.join(info['servizi'])}
+
+═══ PALETTE COLORI ═══
+Nome tema: {palette['nome']}
+Colore primario: {palette['primario']}
+Colore secondario: {palette['secondario']}
+Colore accento: {palette['accento']}
+Sfondo: #0a0a0a (dark premium)
+Testo: #f5f5f5
+
+═══ INVENTARIO AUTO ═══
+{inventario_str if inventario_str else "Crea 6 auto di esempio coerenti con i marchi della concessionaria"}
+
+═══ FUNZIONALITÀ RICHIESTE ═══
+{', '.join(features_on)}
+
+═══ STILE COMUNICATIVO ═══
+Lingua: {info['lingua']}
+Tono: {info['tono']}
+Note speciali: {info['note'] if info['note'] else 'Nessuna'}
+
+═══ REQUISITI SPECIFICI ═══
+- Loading screen con logo e barra di caricamento animata
+- Hero section con effetto particelle CSS (punti animati sullo sfondo)
+- Inventario con filtri JavaScript funzionanti (filtra per marca, carburante, prezzo min/max)
+- Calcolatore finanziamento: input prezzo, acconto, durata (mesi), tasso → calcola rata mensile in tempo reale
+- Counter animato per statistiche (es: 500+ clienti, 20+ anni, etc.)
+- Testimonial carousel JavaScript
+- Modale per dettaglio auto al click sulla card
+- Form di prenotazione con validazione JavaScript
+- Notifiche toast per feedback utente (es: "Richiesta inviata!")
+- WhatsApp button pulsante con animazione
+- Scroll progress bar in cima alla pagina
+- Back-to-top button
+
+Genera il codice HTML completo ora. Solo codice, nessun testo extra."""
+
+def generate_website(info: dict) -> str:
+    """Chiama Claude API e genera il sito web completo"""
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        print(f"\n{C.RED}  ✗ ANTHROPIC_API_KEY non trovata nelle variabili d'ambiente.{C.RESET}")
+        print(f"  {C.DIM}Esporta la chiave: export ANTHROPIC_API_KEY='la-tua-chiave'{C.RESET}")
+        sys.exit(1)
+
+    client = anthropic.Anthropic(api_key=api_key)
+    prompt = build_prompt(info)
+
+    spinner_msg("Claude AI sta generando il tuo sito web (questo richiede 30-60 secondi)")
+
+    chunks = []
+    char_count = 0
+
+    with client.messages.stream(
+        model="claude-opus-4-5",
+        max_tokens=16000,
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": prompt}],
+    ) as stream:
+        for text in stream.text_stream:
+            chunks.append(text)
+            char_count += len(text)
+            # Progress indicator
+            if char_count % 500 == 0:
+                bars = "█" * min(40, char_count // 300)
+                print(f"\r  {C.CYAN}{bars}{C.RESET} {char_count:,} caratteri...", end="", flush=True)
+
+    print()  # newline dopo progress
+    return "".join(chunks)
+
+# ─── SALVATAGGIO E OUTPUT ────────────────────────────────────────
+
+def save_website(html: str, nome: str) -> Path:
+    """Salva il sito web generato"""
+
+    # Crea directory output
+    output_dir = Path("siti_generati")
+    output_dir.mkdir(exist_ok=True)
+
+    # Nome file sicuro
+    safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', nome.lower().replace(" ", "_"))
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = output_dir / f"{safe_name}_{timestamp}.html"
+
+    # Scrivi file
+    filename.write_text(html, encoding="utf-8")
+    return filename
+
+def save_config(info: dict, output_path: Path):
+    """Salva la configurazione JSON accanto al sito"""
+    config_path = output_path.with_suffix(".json")
+    # Rimuovi oggetti non serializzabili se presenti
+    config_data = {k: v for k, v in info.items()}
+    config_path.write_text(
+        json.dumps(config_data, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+
+# ─── MAIN ────────────────────────────────────────────────────────
+
+def main():
+    banner()
+
+    print(f"  {C.WHITE}Benvenuto nel generatore AI di siti web per concessionarie auto.{C.RESET}")
+    print(f"  {C.DIM}Rispondi alle domande seguenti e il bot creerà un sito web professionale{C.RESET}")
+    print(f"  {C.DIM}completo e pronto all'uso in pochi minuti.{C.RESET}")
+
+    try:
+        # 1. Raccogli informazioni
+        info = collect_dealership_info()
+
+        # 2. Conferma prima di generare
+        section("RIEPILOGO")
+        print(f"  Concessionaria: {C.CYAN}{info['nome']}{C.RESET} — {C.DIM}{info['citta']}{C.RESET}")
+        print(f"  Marchi: {C.CYAN}{', '.join(info['marchi'])}{C.RESET}")
+        print(f"  Tema: {C.CYAN}{info['palette']['nome']}{C.RESET}")
+        print(f"  Auto in inventario: {C.CYAN}{len(info['inventario'])}{C.RESET}")
+        features_on = [k for k, v in info["features"].items() if v]
+        print(f"  Funzionalità: {C.CYAN}{len(features_on)}{C.RESET} attive")
+
+        print(f"\n  {C.YELLOW}Pronto a generare il sito web?{C.RESET}")
+        conferma = input(f"  {C.CYAN}▸{C.RESET} Premi INVIO per confermare (o 'n' per annullare): ").strip().lower()
+
+        if conferma == 'n':
+            print(f"\n{C.DIM}  Operazione annullata.{C.RESET}\n")
+            return
+
+        # 3. Genera sito
+        html_content = generate_website(info)
+
+        # 4. Salva file
+        output_path = save_website(html_content, info["nome"])
+        save_config(info, output_path)
+
+        # 5. Risultato finale
+        size_kb = len(html_content.encode()) // 1024
+
+        print(f"\n{'═'*60}")
+        success(f"SITO WEB GENERATO CON SUCCESSO!")
+        print(f"{'═'*60}")
+        info_print = [
+            f"  📁 File:     {C.CYAN}{output_path}{C.RESET}",
+            f"  📦 Dimensione: {C.CYAN}{size_kb} KB{C.RESET}",
+            f"  🎨 Tema:     {C.CYAN}{info['palette']['nome']}{C.RESET}",
+            f"  🚗 Modello:  {C.CYAN}{info['nome']}{C.RESET}",
+        ]
+        for line in info_print:
+            print(line)
+
+        print(f"\n{C.YELLOW}  Come aprire il sito:{C.RESET}")
+        print(f"  {C.DIM}→ Apri il file .html direttamente nel browser{C.RESET}")
+        print(f"  {C.DIM}→ oppure usa: python -m http.server 8080{C.RESET}")
+        print(f"  {C.DIM}→ e visita: http://localhost:8080/{output_path}{C.RESET}\n")
+
+    except KeyboardInterrupt:
+        print(f"\n\n{C.DIM}  Operazione interrotta dall'utente.{C.RESET}\n")
+        sys.exit(0)
+    except anthropic.APIError as e:
+        print(f"\n{C.RED}  ✗ Errore API Claude: {e}{C.RESET}\n")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
